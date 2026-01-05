@@ -3,7 +3,7 @@ from rest_framework import generics,status
 from rest_framework.response import Response
 from .serializers import OrderCreationSerializer,OrderDetailSerializer,OrderStatusUpdateSerializer
 from .models import Order
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly,IsAdminUser
 from django.contrib.auth import get_user_model
 
 User=get_user_model()
@@ -12,7 +12,7 @@ User=get_user_model()
 class OrderCreateListView(generics.GenericAPIView):
     serializer_class = OrderCreationSerializer
     queryset= Order.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self,request):
         orders = Order.objects.all()
@@ -33,7 +33,7 @@ class OrderCreateListView(generics.GenericAPIView):
 
 class OrderDetailView(generics.GenericAPIView):
     serializer_class = OrderDetailSerializer
-    permission_classes=[IsAuthenticated]
+    permission_classes=[IsAdminUser]
     
     def get(self,request,order_id):
         
@@ -57,6 +57,7 @@ class OrderDetailView(generics.GenericAPIView):
 
 class UpdateOrderStatusView(generics.GenericAPIView):
     serializer_class=OrderStatusUpdateSerializer
+    permission_classes = [IsAdminUser]
 
     def put(self,request,order_id):
         order=get_object_or_404(Order,pk=order_id)
