@@ -1,6 +1,8 @@
 from .models import Order
 from rest_framework import serializers
 
+class DummySerializer(serializers.Serializer):
+    pass
 
 class OrderCreationSerializer(serializers.ModelSerializer):
     size = serializers.CharField(max_length=20)
