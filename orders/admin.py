@@ -3,5 +3,6 @@ from .models import Order
 # Register your models here.
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['size','order_status','quantity','created_at'] 
+    list_display = ['id','customer__username','size','order_status','quantity','created_at'] 
     list_filter=['created_at','order_status','size']
+    search_fields = ('customer__username',)

@@ -14,11 +14,11 @@ class CustomUserManager(BaseUserManager):
         if not phone_number:
             raise ValueError(_("Phone number must be provided"))
 
-        email = self.normalize_email(email)
+        
         extra_fields.setdefault("is_active", True)
 
         user = self.model(
-            email=email,
+            email=email,  
             username=username,
             phone_number=phone_number,
             **extra_fields
@@ -47,7 +47,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    username = models.CharField(max_length=25, unique=True)
+    username = models.CharField(max_length=25)
     email = models.EmailField(max_length=80, unique=True)
     phone_number = PhoneNumberField(unique=True)
 

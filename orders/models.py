@@ -6,25 +6,23 @@ User = get_user_model()
 
 class Order(models.Model):
    
-    SIZEZ = (
-        ('SMALL','small'),
-        ('MEDIUM','medium'),
-        ('LARGE','large'),
-        ('EXTRA_LARGE','extraLarge'),
-    )
+    class SizeChoices(models.TextChoices):
+        SMALL = "SMALL", "Small"
+        MEDIUM = "MEDIUM", "Medium"
+        LARGE = "LARGE", "Large"
+        EXTRA_LARGE = "EXTRA_LARGE", "Extra Large"
 
-    ORDER_STATUS =( 
-         ('PENDING','pending'),
-         ('IN_TRANSIT','inTransit'),
-         ('DELIVERED','delivered'),
-      )
+    class StatusChoices(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        IN_TRANSIT = "IN_TRANSIT", "In Transit"
+        DELIVERED = "DELIVERED", "Delivered"
 
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
-    size = models.CharField(max_length=20,choices=SIZEZ,default=SIZEZ[0][0])
-    order_status=models.CharField(max_length=20,choices=ORDER_STATUS,default=ORDER_STATUS[0][0])
-    quantity=models.IntegerField()
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    size = models.CharField(max_length=20, choices=SizeChoices.choices, default=SizeChoices.SMALL)
+    order_status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING)
+    quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.size} by {self.customer.id}"
+        return f"Order #{self.id} | {self.size} | Customer {self.customer.id}"

@@ -4,6 +4,7 @@ urlpatterns = [
     path('',views.OrderCreateListView.as_view(),name='orders'),
     path('<int:order_id>/',views.OrderDetailView.as_view(),name='order_detail'),
     path('update-status/<int:order_id>/',views.UpdateOrderStatusView.as_view(),name='update_order_status'),
+    path('update-order/<int:order_id>/',views.UpdateOrderView.as_view(),name='update_order'),
     path('user/<int:user_id>/orders/',views.UserOrdersView.as_view(),name='users_orders'),
     path('user/<int:user_id>/order/<int:order_id>/',views.UserOrderDetail.as_view(),name='users_specific_detail'),
    
