@@ -33,8 +33,7 @@ INSTALLED_APPS = [
     'orders',
     'rest_framework',
     'djoser',
-    'drf_yasg',
-    
+    'drf_yasg',   
 ]
 
 
@@ -44,7 +43,23 @@ REST_FRAMEWORK={
     'NON_FIELD_ERRORS_KEY':'error',
     'DEFAULT_AUTHENTICATION_CLASSES':(
      'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        "anon": "20/hour",
+        "user": "100/hour",
+
+        
+        "order_create": "30/hour",
+        "user_orders": "50/hour",
+        "admin_order_read": "100/hour",
+        "admin_order_write": "100/hour",
+        "admin_delete_order": "100/hour",
+        
+    }
 }
 
 SIMPLE_JWT = {
@@ -140,16 +155,4 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '20/hour',
-        'user': '20/hour',
-        #orders
-        'specific_users_all_order':'20/hour',
-        
-    }
-}
+

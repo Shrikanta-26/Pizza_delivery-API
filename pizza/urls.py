@@ -11,9 +11,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Pizza Delivery API",
+      title="PIZZA DELIVERY API",
       default_version='v1',
-      description="A Rest for a Pizza delivery service",
+      description="A RestApi for a Pizza delivery service",
       contact=openapi.Contact(email="admin@gmail.com"),  
     ),
    public=True,
