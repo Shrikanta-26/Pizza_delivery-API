@@ -24,5 +24,8 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def __str__(self):
-        return f"Order #{self.id} | {self.size} | Customer {self.customer.id}"
+        return f"Order #{self.id} | {self.get_size_display()} | Customer {self.customer.id}"
