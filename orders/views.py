@@ -6,11 +6,19 @@ from .models import Order
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly,IsAdminUser
 from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
 from .throttling import UserOrderThrottle,OrderCreateThrottle,AdminOrderReadThrottle,AdminOrderWriteThrottle,AdminOrderDeleteThrottle
 
 User = get_user_model()
-# Create your views here.
+
+# Pagination
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
 
 # Hello View
 class HelloOrderView(generics.GenericAPIView):
@@ -26,6 +34,7 @@ class HelloOrderView(generics.GenericAPIView):
 
 class OrderCreateListView(generics.GenericAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -42,8 +51,26 @@ class OrderCreateListView(generics.GenericAPIView):
     @swagger_auto_schema(operation_summary="List all orders made")
     def get(self, request):
         orders = Order.objects.all()
+
+        # Filtering
+
+        status_filter = request.query_params.get('status')
+        size_filter = request.query_params.get('size')
+        search = request.query_params.get('search')
+       
+        if status_filter:
+            orders = orders.filter(order_status=status_filter.upper())
+        if size_filter:
+            orders = orders.filter(size=size_filter.upper())
+        if search:
+            orders = orders.filter(Q(customer__username__icontains=search) | Q(id__icontains=search))
+
+        #Pagination
+        paginator = StandardResultsSetPagination()
+        result_page = paginator.paginate_queryset(orders,request)
+
         serializer = self.get_serializer_class()(orders, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Create a new order")
     def post(self, request):
@@ -135,6 +162,7 @@ class UpdateOrderView(generics.GenericAPIView):
 class UserOrdersView(generics.GenericAPIView):
     serializer_class = OrderDetailSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = [StandardResultsSetPagination]
 
     def get_throttles(self):
         return [UserOrderThrottle()]
@@ -151,8 +179,23 @@ class UserOrdersView(generics.GenericAPIView):
             return Response({"detail": "You do not have permission to view this user's orders."}, status=status.HTTP_403_FORBIDDEN)
 
         orders = Order.objects.filter(customer=user)
+
+        # Filtering
+        status_filter = request.query_params.get('status')
+        size_filter = request.query_params.get('size')
+        search = request.query_params.get('search')
+
+        if status_filter:
+            orders = orders.filter(order_status=status_filter.upper())
+        if size_filter:
+            orders = orders.filter(size=size_filter.upper())
+        if search:
+            orders = orders.filter(Q(id__icontains=search))
+
+        paginator = StandardResultsSetPagination()
+        result_page = paginator.paginate_queryset(orders, request)
         serializer = self.serializer_class(orders, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(serializer.data)
 
 
 # Retrieve a specific order for a user
