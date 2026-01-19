@@ -9,6 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.throttling import UserRateThrottle,AnonRateThrottle
 from .throttling import UserOrderThrottle,OrderCreateThrottle,AdminOrderReadThrottle,AdminOrderWriteThrottle,AdminOrderDeleteThrottle
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -67,9 +68,8 @@ class OrderCreateListView(generics.GenericAPIView):
 
         #Pagination
         paginator = StandardResultsSetPagination()
-        result_page = paginator.paginate_queryset(orders,request)
-
-        serializer = self.get_serializer_class()(orders, many=True)
+        result_page = paginator.paginate_queryset(orders, request)
+        serializer = self.get_serializer_class()(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
     @swagger_auto_schema(operation_summary="Create a new order")
@@ -162,7 +162,7 @@ class UpdateOrderView(generics.GenericAPIView):
 class UserOrdersView(generics.GenericAPIView):
     serializer_class = OrderDetailSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = [StandardResultsSetPagination]
+    pagination_class = StandardResultsSetPagination
 
     def get_throttles(self):
         return [UserOrderThrottle()]
@@ -194,7 +194,7 @@ class UserOrdersView(generics.GenericAPIView):
 
         paginator = StandardResultsSetPagination()
         result_page = paginator.paginate_queryset(orders, request)
-        serializer = self.serializer_class(orders, many=True)
+        serializer = self.serializer_class(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
 
